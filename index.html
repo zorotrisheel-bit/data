@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Prank Awareness — Ultimate Prank (Fixed)</title>
+<style>
+  :root{--bg:#071017;--card:#0f1721;--accent:#3a6df0;--danger:#ff4b4b;--muted:#9aa6b2}
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,#041018 0%,#071017 100%);font-family:Inter,system-ui,Segoe UI,Roboto,Arial;color:#e6eef6}
+  .app{max-width:420px;margin:28px auto;padding:18px}
+  .phone{width:360px;margin:0 auto;background:linear-gradient(180deg,#09131a,#071017);border-radius:20px;padding:18px;box-shadow:0 10px 40px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.02)}
+  h1{font-size:18px;margin:6px 0 12px;text-align:center}
+  .card{background:var(--card);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02)}
+  label{display:block;margin:8px 0 6px;color:var(--muted);font-size:13px}
+  input{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit}
+  button{display:inline-block;padding:10px 12px;border-radius:10px;border:0;background:var(--accent);color:#062017;font-weight:700;cursor:pointer}
+  .muted{color:var(--muted);font-size:13px}
+  .steps .step{display:none}
+  .steps .step.active{display:block}
+  .progress{height:8px;background:rgba(255,255,255,0.03);border-radius:6px;overflow:hidden;margin:10px 0}
+  .progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#7cb4ff);transition:width 350ms linear}
+  .host-btn{position:fixed;right:18px;bottom:18px;padding:12px 14px;border-radius:999px;background:#08121a;border:1px solid rgba(255,255,255,0.03);cursor:pointer}
+  .host-panel{position:fixed;left:50%;transform:translateX(-50%);bottom:-100%;width:92%;max-width:720px;background:#071017;border-radius:12px;padding:14px;border:1px solid rgba(255,255,255,0.03);transition:bottom .4s ease}
+  .host-panel.open{bottom:22px}
+  .host-grid{display:flex;gap:12px;flex-wrap:wrap}
+  .host-list{max-height:260px;overflow:auto;margin-top:12px}
+  .entry{background:rgba(255,255,255,0.02);padding:8px;border-radius:8px;margin-bottom:8px}
+  .danger{background:var(--danger);color:white}
+  .small{font-size:12px;color:var(--muted)}
+
+  /* prank screens */
+  .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:9999}
+  .hidden{display:none}
+  .scan-box{width:88%;max-width:520px;padding:26px;border-radius:12px;background:linear-gradient(180deg,#071017,#08121a);box-shadow:0 10px 40px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.03);text-align:center}
+  .scan-title{font-size:20px;margin-bottom:8px}
+  .spinner{width:60px;height:60px;border-radius:50%;border:6px solid rgba(255,255,255,0.04);border-top-color:var(--accent);animation:spin 1s linear infinite;margin:12px auto}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .virus {background:linear-gradient(180deg,#2b0000,#5a0000);color:#fff;padding:30px;border-radius:12px;text-align:center}
+  .virus h2{font-size:32px;margin:0 0 8px}
+  .confetti-piece{position:fixed;pointer-events:none;z-index:10010;width:10px;height:16px;opacity:0}
+
+  /* small responsive */
+  @media(max-width:420px){.phone{width:92%;padding:14px}.app{margin:8px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="phone card">
+    <h1>Security Check — Quick Questions</h1>
+    <div class="steps">
+      <div class="step active" id="s1">
+        <label>1) Full name</label>
+        <input id="q1" placeholder="e.g. Alex Kumar">
+        <div style="margin-top:10px"><button onclick="go(1)">Next</button></div>
+      </div>
+      <div class="step" id="s2">
+        <label>2) Email</label>
+        <input id="q2" placeholder="you@example.com">
+        <div style="margin-top:10px"><button onclick="go(2)">Next</button></div>
+      </div>
+      <div class="step" id="s3">
+        <label>3) Favourite snack</label>
+        <input id="q3" placeholder="Samosa">
+        <div style="margin-top:10px"><button onclick="go(3)">Next</button></div>
+      </div>
+      <div class="step" id="s4">
+        <label>4) Best friend's name</label>
+        <input id="q4" placeholder="Rohit">
+        <div style="margin-top:10px"><button onclick="go(4)">Next</button></div>
+      </div>
+      <div class="step" id="s5">
+        <label>5) DOB</label>
+        <input id="q5" placeholder="DD/MM/YYYY">
+        <div style="margin-top:10px"><button onclick="go(5)">Next</button></div>
+      </div>
+      <div class="step" id="s6">
+        <label>6) Favourite song</label>
+        <input id="q6" placeholder="Name of the song">
+        <div style="margin-top:10px"><button onclick="go(6)">Next</button></div>
+      </div>
+      <div class="step" id="s7">
+        <label>7) Secret alias</label>
+        <input id="q7" placeholder="e.g. Shadow">
+        <div style="margin-top:10px"><button onclick="finish()">Submit</button></div>
+      </div>
+    </div>
+    <div class="progress" style="margin-top:12px"><i id="bar" style="width:0%"></i></div>
+    <div class="small">This is a harmless prank for awareness. Data is stored locally on this device only.</div>
+  </div>
+</div>
+
+<!-- overlay screens -->
+<div id="loadingOverlay" class="overlay hidden">
+  <div class="scan-box">
+    <div class="scan-title">Scanning device for vulnerabilities...</div>
+    <div class="spinner"></div>
+    <div class="small" id="scanMsg">Analyzing 0 of 1024 files</div>
+  </div>
+</div>
+
+<div id="virusOverlay" class="overlay hidden">
+  <div class="virus">
+    <h2>!!! MALWARE DETECTED !!!</h2>
+    <p>Critical system files corrupted. Phone compromised.</p>
+    <p style="margin-top:12px;opacity:0.9">If this were real — contact support. For now — it's a prank 😈</p>
+    <div style="margin-top:14px"><button id="revealBtn">Reveal — I'm safe</button></div>
+  </div>
+</div>
+
+<!-- host button & panel -->
+<button id="hostBtn" class="host-btn">Host</button>
+<div id="hostPanel" class="host-panel">
+  <div style="display:flex;gap:10px;align-items:center;justify-content:space-between">
+    <div style="font-weight:700">Host Dashboard</div>
+    <div class="small">Local only</div>
+  </div>
+  <div style="margin-top:10px" class="host-grid">
+    <input id="hostPw" type="password" placeholder="Set / enter host password" style="flex:1">
+    <button id="setPw">Set</button>
+    <button id="unlockBtn">Unlock</button>
+    <button id="changePwBtn">Change (one-time)</button>
+    <button id="exportBtn">Export CSV</button>
+    <button id="clearBtn" class="danger">Clear all</button>
+  </div>
+  <div class="host-list" id="hostList"></div>
+  <div class="small" style="margin-top:8px">Tip: change password only if you know the current one.</div>
+</div>
+
+<!-- confetti pieces container -->
+<div id="confetti"></div>
+
+<audio id="prankSound"></audio>
+
+<script>
+// storage keys
+const ENTRY_KEY = 'prank_entries_v2';
+const HOST_PW_KEY = 'prank_host_pw_v2';
+const HOST_PW_CHANGED = 'prank_host_pw_changed_v2';
+
+// UI refs
+const steps = 7;
+let cur = 1;
+const bar = document.getElementById('bar');
+
+function go(n){
+  // validate
+  const val = document.getElementById('q'+n).value.trim();
+  if(!val){ alert('Please answer the question'); return; }
+  // hide current, show next
+  document.getElementById('s'+n).classList.remove('active');
+  cur = n+1;
+  if(cur<=steps) document.getElementById('s'+cur).classList.add('active');
+  updateBar();
+}
+
+function updateBar(){
+  const pct = Math.round(((cur-1)/steps)*100);
+  bar.style.width = pct + '%';
+}
+
+function readEntries(){ try{return JSON.parse(localStorage.getItem(ENTRY_KEY)||'[]')}catch(e){return[]} }
+function saveEntries(a){ localStorage.setItem(ENTRY_KEY, JSON.stringify(a)) }
+
+function finish(){
+  // collect answers
+  const data = { q1: document.getElementById('q1').value.trim(), q2: document.getElementById('q2').value.trim(), q3: document.getElementById('q3').value.trim(), q4: document.getElementById('q4').value.trim(), q5: document.getElementById('q5').value.trim(), q6: document.getElementById('q6').value.trim(), q7: document.getElementById('q7').value.trim(), _ts: Date.now() };
+  const arr = readEntries(); arr.unshift(data); saveEntries(arr);
+
+  // play sound, show loading then virus
+  playPrankTone();
+  document.getElementById('loadingOverlay').classList.remove('hidden');
+  // simulate scanning progress
+  let scanned = 0; const total = 120 + Math.floor(Math.random()*200);
+  const scanMsg = document.getElementById('scanMsg');
+  const iv = setInterval(()=>{
+    scanned += Math.floor(5 + Math.random()*12);
+    if(scanned>=total) scanned = total;
+    scanMsg.textContent = `Analyzing ${scanned} of ${total} files`;
+    if(scanned>=total){ clearInterval(iv); setTimeout(()=>{ document.getElementById('loadingOverlay').classList.add('hidden'); showVirus(); }, 900); }
+  }, 150);
+}
+
+function showVirus(){
+  // full-screen virus overlay
+  document.getElementById('virusOverlay').classList.remove('hidden');
+  startConfetti();
+}
+
+function playPrankTone(){
+  // short rising tone using WebAudio
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.type = 'sawtooth'; o.frequency.setValueAtTime(220, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 1.6);
+    g.gain.setValueAtTime(0.0001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.06);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 2.2);
+    o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + 2.3);
+  }catch(e){ console.log('Audio failed',e) }
+}
+
+// confetti
+function startConfetti(){
+  const container = document.getElementById('confetti');
+  for(let i=0;i<40;i++){
+    const el = document.createElement('div'); el.className='confetti-piece';
+    el.style.left = (10 + Math.random()*80) + '%';
+    el.style.top = '-10px';
+    el.style.width = 6 + Math.random()*10 + 'px';
+    el.style.height = 8 + Math.random()*12 + 'px';
+    el.style.background = ['#ff5b5b','#ffd35b','#5bffb7','#5bb3ff'][Math.floor(Math.random()*4)];
+    el.style.transform = `rotate(${Math.random()*360}deg)`;
+    el.style.opacity = '1';
+    container.appendChild(el);
+    // animate
+    const fall = el.animate([{transform: `translateY(0px) rotate(${Math.random()*180}deg)`, opacity:1},{transform:`translateY(${200+Math.random()*400}px) rotate(${Math.random()*720}deg)`, opacity:0}],{duration:2200+Math.random()*1400,iterations:1,easing:'cubic-bezier(.2,.7,.2,1)'});
+    fall.onfinish = ()=> el.remove();
+  }
+}
+
+// HOST logic: set/unlock/change once/export/clear
+const hostBtn = document.getElementById('hostBtn');
+const hostPanel = document.getElementById('hostPanel');
+const hostPw = document.getElementById('hostPw');
+const setPw = document.getElementById('setPw');
+const unlockBtn = document.getElementById('unlockBtn');
+const changePwBtn = document.getElementById('changePwBtn');
+const exportBtn = document.getElementById('exportBtn');
+const clearBtn = document.getElementById('clearBtn');
+const hostList = document.getElementById('hostList');
+
+let pwChanged = !!localStorage.getItem(HOST_PW_CHANGED);
+
+hostBtn.addEventListener('click', ()=>{ hostPanel.classList.toggle('open'); renderHostList(); });
+
+setPw.addEventListener('click', ()=>{
+  const v = hostPw.value.trim();
+  if(!v){ alert('Enter a password to set'); return; }
+  if(localStorage.getItem(HOST_PW_KEY)){ alert('Password already set — unlock to change (one-time)'); return; }
+  localStorage.setItem(HOST_PW_KEY, v);
+  hostPw.value=''; alert('Host password set locally');
+});
+
+unlockBtn.addEventListener('click', ()=>{
+  const v = hostPw.value.trim();
+  const stored = localStorage.getItem(HOST_PW_KEY);
+  if(!stored){ alert('No password set — use Set button first'); return; }
+  if(v === stored){ hostPw.value=''; hostUnlocked = true; renderHostList(); alert('Host unlocked'); } else alert('Wrong password');
+});
+
+changePwBtn.addEventListener('click', ()=>{
+  if(!hostUnlocked){ alert('Unlock first'); return; }
+  if(pwChanged){ alert('Password can only be changed once'); return; }
+  const cur = prompt('Enter current password to confirm:');
+  if(cur !== localStorage.getItem(HOST_PW_KEY)){ alert('Incorrect'); return; }
+  const np = prompt('Enter new password:'); if(!np) return; localStorage.setItem(HOST_PW_KEY, np); localStorage.setItem(HOST_PW_CHANGED, '1'); pwChanged = true; alert('Password updated (one-time)');
+});
+
+exportBtn.addEventListener('click', ()=>{
+  if(!hostUnlocked){ alert('Unlock first'); return; }
+  const arr = readEntries(); if(arr.length===0){ alert('No entries'); return; }
+  const header = ['q1','q2','q3','q4','q5','q6','q7','ts'];
+  const rows = arr.map(r=>[r.q1||'',r.q2||'',r.q3||'',r.q4||'',r.q5||'',r.q6||'',r.q7||'',new Date(r._ts).toLocaleString()]);
+  const csv = [header,...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv'}); const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='prank_entries.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
+
+clearBtn.addEventListener('click', ()=>{ if(!hostUnlocked){ alert('Unlock first'); return; } if(confirm('Delete all local entries?')){ localStorage.removeItem(ENTRY_KEY); renderHostList(); alert('Deleted'); } });
+
+function renderHostList(){
+  hostList.innerHTML='';
+  if(!hostUnlocked){ hostList.innerHTML='<div class="small">Locked — unlock to view entries</div>'; return; }
+  const arr = readEntries(); if(arr.length===0){ hostList.innerHTML='<div class="small">No entries yet</div>'; return; }
+  arr.forEach((r,i)=>{
+    const d = document.createElement('div'); d.className='entry';
+    d.innerHTML = `<div><strong>${escapeHtml(r.q1||'—')}</strong> <span class="small">${new Date(r._ts).toLocaleString()}</span></div><div class="small">${escapeHtml(r.q2||'')}</div><div>Fav: ${escapeHtml(r.q3||'')}</div><div class="small">Alias: ${escapeHtml(r.q7||'')}</div><div style="margin-top:8px"><button data-i="${i}" class="danger" onclick="deleteOne(${i})">Delete</button></div>`;
+    hostList.appendChild(d);
+  });
+}
+
+window.deleteOne = function(i){ if(!hostUnlocked){ alert('Unlock first'); return; } const a=readEntries(); a.splice(i,1); saveEntries(a); renderHostList(); }
+
+// small helper
+function escapeHtml(s){ if(s===undefined||s===null) return ''; return String(s).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c)); }
+
+// reveal button on prank screen
+document.getElementById('revealBtn').addEventListener('click', ()=>{ document.getElementById('virusOverlay').classList.add('hidden'); showerConfetti(40); alert('Prank over — data saved locally for host review'); hostPanel.classList.add('open'); renderHostList(); });
+
+// simple confetti shower for reveal
+function showerConfetti(n){ for(let i=0;i<n;i++){ setTimeout(startConfetti, i*30); } }
+
+// small initial state
+updateBar();
+
+</script>
+</body>
+</html>
